@@ -5,14 +5,15 @@
 
 'use strict';
 
-var path       = require('path'),
+var //path       = require('path'),
     util       = require('util'),
     exec       = require('child_process').exec,
     notifier   = require('node-notifier'),
     chokidar   = require('chokidar'),
+    watchList  = {},
+    doneList   = {};
     //extend     = require('extend'),
-    app        = require('spasdk/lib/app'),
-    pkgData    = require(path.join(process.cwd(), 'package.json'));
+    //app        = require('spasdk/lib/app');
     //rootConfig = require('../config'),
     //padSize    = 8;
 
@@ -20,10 +21,9 @@ var path       = require('path'),
 /**
  * @constructor
  *
- * @param {Object} config init options
+ * @param {Object} config init parameters
  * @param {string} config.name gulp task set name
  * @param {string} config.entry task name used as the main entry
- * @param {Object} config.context link to a gulp plugin module
  * @param {Object} config.config plugin module config
  */
 function Plugin ( config ) {
@@ -70,34 +70,62 @@ function Plugin ( config ) {
     // plugin is not disabled
     if ( this.config && typeof this.config === 'object' ) {
         // wrap profiles
-        Object.keys(this.config).forEach(function ( name ) {
-            var profile = self.config[name],
-                tasks   = self.tasks,
-                addTask = function ( action, method ) {
-                    var mainName = self.name + ':' + action,
-                        taskName = mainName  + ':' + name;
+        Object.keys(this.config).forEach(function ( profileName ) {
+            var profile = self.config[profileName];
+                //tasks   = self.tasks;
+                //watcher, watcherDone;
 
-                    // task itself
-                    tasks[taskName] = method;
-                    // group alias
-                    tasks[mainName] = tasks[mainName] || [];
-                    tasks[mainName].push(taskName);
+            function localTask ( id, body ) {
+                var groupName = self.name + ':' + id,
+                    finalName = self.task(id + ':' + profileName, body);
 
-                    return taskName;
-                },
-                watcher, watcherDone;
+                /*var mainName = self.name + ':' + id,
+                 taskName = mainName  + ':' + profileName;
+
+                 // task itself
+                 tasks[taskName] = body;
+                 // group alias
+                 tasks[mainName] = tasks[mainName] || [];
+                 tasks[mainName].push(taskName);*/
+
+                // group alias
+                self.tasks[groupName] = self.tasks[groupName] || [];
+                self.tasks[groupName].push(finalName);
+
+                return finalName;
+            }
+
+            function localWatch ( config ) {
+                var groupName, finalName;
+
+                config.name = config.name || profileName;
+
+                groupName = self.name + ':' + config.name;
+                finalName = self.watch(config);
+
+                // group alias
+                self.tasks[groupName] = self.tasks[groupName] || [];
+                self.tasks[groupName].push(finalName);
+
+                return finalName;
+            }
+
+            function localNotify ( data ) {
+                return self.notify(data, profileName);
+            }
 
             self.profiles.push({
-                name: name,
+                name: profileName,
                 data: profile,
-                task: addTask,
-                watch: function ( watchName, watchPaths, taskName ) {
+                task: localTask,
+                //watch: function ( watchName, watchPaths, taskName ) {
+                watch: localWatch,
                     // auto-rebuild is set
-                    if ( watchPaths && watchPaths.length ) {
-                        addTask(watchName ? 'watch:' + watchName : 'watch', function ( done ) {
+                    /*if ( watchPaths && watchPaths.length ) {
+                        localTask(watchName ? 'watch:' + watchName : 'watch', function ( done ) {
                             var fn = function ( name ) {
                                 console.log('change:', name);
-                                app.runner.run(taskName);
+                                self.app.runner.run(taskName);
                             };
 
                             watcher = chokidar.watch(watchPaths, {ignoreInitial: true});
@@ -109,24 +137,20 @@ function Plugin ( config ) {
                             watcherDone = done;
                         });
 
-                        addTask(watchName ? 'unwatch:' + watchName : 'unwatch', function () {
+                        localTask(watchName ? 'unwatch:' + watchName : 'unwatch', function () {
                             if ( watcher ) {
                                 watcher.close();
                                 watcher = null;
                                 watcherDone();
                             }
                         });
-                    }
-                },
-                notify: function ( data ) {
-                    // forward
-                    self.notify(data, name);
-                }
+                    }*/
+                //},
+                notify: localNotify
             });
 
-            addTask('config', function () {
-                //log(pad(self.name).inverse, util.inspect(self.config[name], {depth: 3, colors: true}));
-                self.debug('config:\n' + util.inspect(self.config[name], {depth: 3, colors: true}));
+            localTask('config', function () {
+                self.debug('config:\n' + util.inspect(self.config[profileName], {depth: 3, colors: true}));
             });
         });
     }
@@ -137,70 +161,83 @@ function Plugin ( config ) {
 }
 
 
-/*function loadConfig ( baseFile, userFile, pluginName ) {
-    var baseConfig = require(baseFile),
-        userConfig = require(userFile)[pluginName],
-        result     = null;
-
-    // task set is not marked for deletion with null/false
-    if ( userConfig !== null && userConfig !== false ) {
-
-        // merge user general config with the package base config
-        result = extend(true, {}, baseConfig, userConfig);
-
-        // remove profiles marked for deletion with null/false
-        Object.keys(result).forEach(function ( name ) {
-            if ( !result[name] ) {
-                delete result[name];
-            }
-        });
-
-        // extend profiles
-        Object.keys(result).forEach(function ( name ) {
-            // not the default profile
-            if ( name !== 'default' ) {
-                // merge this profile with the default one
-                result[name] = extend(
-                    true, {}, result.default, result[name]
-                );
-            }
-        });
-
-        // apply "auto" port
-        Object.keys(result).forEach(function ( name ) {
-            if ( result[name].port === 'auto' ) {
-                result[name].port = rootConfig.default.port++;
-            }
-        });
-    }
-
-    return result;
-}*/
-
-
-/*function pad ( str ) {
-    return str + (new Array(Math.max(padSize - str.length + 1, 0))).join(' ');
-}*/
-
-
-/*function log ( title, message ) {
-    message = Array.isArray(message) ? message : message.split('\n');
-
-    // make nice console output
-    message.forEach(function ( line ) {
-        //gutil.log(title, line.reset);
-        console.log(title, line.reset);
-    });
-}*/
-
-
 Plugin.prototype = {
 	/**
-     * Project info from package.json.
+     * Link to the application instance.
      *
      * @type {Object}
      */
-    package: pkgData,
+    app: require('spasdk/lib/app'),
+
+
+    /**
+     * Add new plugin top-level general task.
+     *
+     * @param {string} id task name
+     * @param {function} body task method
+     *
+     * @return {string} full task name
+     */
+    task: function ( id, body ) {
+        var name = this.name + ':' + id;
+
+        this.tasks[name] = body;
+
+        return name;
+    },
+
+
+    /**
+     * Add new plugin top-level watch/unwatch task.
+     *
+     * @param {Object} config init parameters
+     * @param {string} config.name watch task name
+     * @param {string} config.glob files to watch
+     * @param {string} config.task task name to exec
+     */
+    watch: function ( config ) {
+        var self = this,
+            watcher, watcherDone;
+
+        this.task(config.name ? config.name + ':watch' : 'watch', function ( done ) {
+            var fn = function ( name ) {
+                self.debug('change: ' + name, 'run: ' + config.task);
+                self.app.runner.run(config.task);
+            };
+
+            watcher = chokidar.watch(config.glob, {ignoreInitial: true})
+                .on('change', fn)
+                .on('unlink', fn)
+                .on('add', fn);
+
+            watcherDone = done;
+        });
+
+        // group alias
+        //this.tasks[groupName] = this.tasks[groupName] || [];
+        //this.tasks[groupName].push(finalName);
+
+        this.task(config.name ? config.name + ':unwatch' : 'unwatch', function () {
+            if ( watcher ) {
+                watcher.close();
+                watcher = null;
+                watcherDone();
+            }
+        });
+    },
+
+
+    unwatch: function ( name ) {
+        var taskId  = this.name + ':' + name,
+            watcher = watchList[taskId],
+            done    = doneList[taskId];
+
+        if ( watcher && done ) {
+            watcher.close();
+            watcher = null;
+            done();
+        }
+    },
 
 
 	/**
@@ -264,12 +301,8 @@ Plugin.prototype = {
         if ( sound && sound.play && sound.file ) {
             exec('aplay "' + sound.file + '"');
         }
-    },
-
-
-    task: function ( action, method ) {
-        this.tasks[this.name + ':' + action] = method;
     }
+
 };
 
 

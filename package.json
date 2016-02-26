@@ -12,7 +12,9 @@
         "jsdoc": "jsdoc --destination doc *.js readme.md"
     },
     "dependencies": {
-        "extend": "3.*.*"
+        "chokidar": "1.*.*",
+        "extend": "3.*.*",
+        "node-notifier": "4.*.*"
     },
     "keywords": [
         "spa",
