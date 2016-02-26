@@ -1,5 +1,5 @@
-Analyse JavaScript code
-=======================
+Plugin constructor for task handling
+====================================
 
 [![NPM version](https://img.shields.io/npm/v/spa-plugin.svg?style=flat-square)](https://www.npmjs.com/package/spa-plugin)
 [![Dependencies Status](https://img.shields.io/david/spasdk/plugin.svg?style=flat-square)](https://david-dm.org/spasdk/plugin)
