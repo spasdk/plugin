@@ -1,0 +1,25 @@
+{
+    "name": "spa-plugin",
+    "version": "1.3.0",
+    "description": "Plugin constructor for task handling.",
+    "author": {
+        "name": "Stanislav Kalashnik",
+        "email": "darkpark.main@gmail.com"
+    },
+    "repository": "spasdk/plugin",
+    "scripts": {
+        "lint": "eslint *.js",
+        "jsdoc": "jsdoc --destination doc *.js readme.md"
+    },
+    "dependencies": {
+        "extend": "3.*.*"
+    },
+    "keywords": [
+        "spa",
+        "spasdk",
+        "framework",
+        "develop",
+        "plugin"
+    ],
+    "license": "GPL-3.0"
+}
