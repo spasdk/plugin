@@ -24,7 +24,7 @@ module.exports = {
 
     // info channels
     notifications: {
-        console: {
+        webui: {
             info: true,
             warn: true,
             fail: true

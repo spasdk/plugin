@@ -9,9 +9,9 @@ var //path       = require('path'),
     util       = require('util'),
     exec       = require('child_process').exec,
     notifier   = require('node-notifier'),
-    chokidar   = require('chokidar'),
-    watchList  = {},
-    doneList   = {};
+    chokidar   = require('chokidar');
+    //watchList  = {},
+    //doneList   = {};
     //extend     = require('extend'),
     //app        = require('spasdk/lib/app');
     //rootConfig = require('../config'),
@@ -28,7 +28,6 @@ var //path       = require('path'),
  */
 function Plugin ( config ) {
     var self = this;
-        //name = pad(config.name);
 
     this.wamp = require('spa-plugin-wamp');
 
@@ -38,24 +37,8 @@ function Plugin ( config ) {
     this.name  = config.name;
     this.entry = config.entry;
 
-    // colored name
-    // according to type
-    //this.title = {
-    //    info: name,
-    //    warn: name,
-    //    fail: name
-    //};
-
-    // max pad title size
-    //padSize = Math.max(padSize, this.name.length);
-
     // merge base and user configs
-    this.config = config.config; //require(path.join(path.dirname(config.context.id), 'config'));
-    //this.config = loadConfig(
-    //    path.join(path.dirname(config.context.id), 'config'),
-    //    path.join(cwd, 'gulpfile.js'),
-    //    this.name
-    //);
+    this.config = config.config;
 
     this.tasks = {};
 
@@ -72,36 +55,10 @@ function Plugin ( config ) {
         // wrap profiles
         Object.keys(this.config).forEach(function ( profileName ) {
             var profile = self.config[profileName];
-                //tasks   = self.tasks;
-                //watcher, watcherDone;
 
             function localTask ( id, body ) {
                 var groupName = self.name + ':' + id,
                     finalName = self.task(id + ':' + profileName, body);
-
-                /*var mainName = self.name + ':' + id,
-                 taskName = mainName  + ':' + profileName;
-
-                 // task itself
-                 tasks[taskName] = body;
-                 // group alias
-                 tasks[mainName] = tasks[mainName] || [];
-                 tasks[mainName].push(taskName);*/
-
-                // group alias
-                self.tasks[groupName] = self.tasks[groupName] || [];
-                self.tasks[groupName].push(finalName);
-
-                return finalName;
-            }
-
-            function localWatch ( config ) {
-                var groupName, finalName;
-
-                config.name = config.name || profileName;
-
-                groupName = self.name + ':' + config.name;
-                finalName = self.watch(config);
 
                 // group alias
                 self.tasks[groupName] = self.tasks[groupName] || [];
@@ -114,50 +71,31 @@ function Plugin ( config ) {
                 return self.notify(data, profileName);
             }
 
+            function localDebug () {
+                Array.prototype.unshift.call(arguments, 'profile:' + profileName);
+                self.debug.apply(self, arguments);
+            }
+
             self.profiles.push({
-                name: profileName,
-                data: profile,
-                task: localTask,
-                //watch: function ( watchName, watchPaths, taskName ) {
-                watch: localWatch,
-                    // auto-rebuild is set
-                    /*if ( watchPaths && watchPaths.length ) {
-                        localTask(watchName ? 'watch:' + watchName : 'watch', function ( done ) {
-                            var fn = function ( name ) {
-                                console.log('change:', name);
-                                self.app.runner.run(taskName);
-                            };
-
-                            watcher = chokidar.watch(watchPaths, {ignoreInitial: true});
-                            watcher
-                                .on('change', fn)
-                                .on('unlink', fn)
-                                .on('add', fn);
-
-                            watcherDone = done;
-                        });
-
-                        localTask(watchName ? 'unwatch:' + watchName : 'unwatch', function () {
-                            if ( watcher ) {
-                                watcher.close();
-                                watcher = null;
-                                watcherDone();
-                            }
-                        });
-                    }*/
-                //},
+                name:   profileName,
+                data:   profile,
+                task:   localTask,
+                debug:  localDebug,
+                //watch:  localWatch,
                 notify: localNotify
             });
 
             localTask('config', function () {
-                self.debug('config:\n' + util.inspect(self.config[profileName], {depth: 3, colors: true}));
+                localNotify({
+                    title: 'config',
+                    //info: 'delete ' + profile.data.target,
+                    info: util.inspect(self.config[profileName], {depth: 3, colors: true})
+                });
             });
         });
     }
 
-    //console.log(this);
     this.debug('profiles: ' + Object.keys(this.config).join(', '));
-    //debug('tasks: ' + Object.keys(this.tasks).length);
 }
 
 
@@ -195,7 +133,7 @@ Plugin.prototype = {
      * @param {string} config.glob files to watch
      * @param {string} config.task task name to exec
      */
-    watch: function ( config ) {
+    /*watch: function ( config ) {
         var self = this,
             watcher, watcherDone;
 
@@ -224,10 +162,33 @@ Plugin.prototype = {
                 watcherDone();
             }
         });
+    },*/
+
+
+    /**
+     * Add new plugin top-level watch task.
+     *
+     * @param {Array} glob globs that indicate which files to watch for changes
+     * @param {string} task task name to exec
+     *
+     * @return {Object} chokidar instance
+     */
+    watch: function ( glob, task ) {
+        var self = this;
+
+        function handler ( name ) {
+            self.debug('change: ' + name, 'run: ' + task);
+            self.app.runner.run(task);
+        }
+
+        return chokidar.watch(glob, {ignoreInitial: true})
+            .on('change', handler)
+            .on('unlink', handler)
+            .on('add',    handler);
     },
 
 
-    unwatch: function ( name ) {
+    /*unwatch: function ( name ) {
         var taskId  = this.name + ':' + name,
             watcher = watchList[taskId],
             done    = doneList[taskId];
@@ -237,26 +198,26 @@ Plugin.prototype = {
             watcher = null;
             done();
         }
-    },
+    },*/
 
 
 	/**
-     * Print info in console, show popup and play sound.
+     * Print info in webui, show popup and play sound.
      *
-     * @param {Object} data message to show
-     * @param {string} [data.type=info] notification type (info|warn|fail)
-     * @param {string|Array} data.info message to show in console
-     * @param {string} [data.icon] file name to use as an icon in popup window
-     * @param {string} data.title popup window header
-     * @param {string|Array} data.message message body to show in popup window
-     * @param {string} profile name of profile to get config from
+     * @param {Object} message message to show
+     * @param {string} [message.type=info] notification type (info|warn|fail)
+     * @param {string|Array} message.info message to show in webui
+     * @param {string} [message.icon] file name to use as an icon in popup window
+     * @param {string} message.title popup window header
+     * @param {string|Array} message.message message body to show in popup window
+     * @param {string} profileName name of profile to get config from
      */
-    notify: function ( data, profile ) {
-        var self   = this,
-            config, console, popup, sound;
+    notify: function ( message, profileName ) {
+        var self = this,
+            config, webuiConfig, popupConfig, soundConfig;
 
-        profile = profile || 'default';
-        config  = this.config[profile].notifications;
+        profileName = profileName || 'default';
+        config = this.config[profileName].notifications;
 
         if ( !config ) {
             // notifications are fully disabled
@@ -264,42 +225,48 @@ Plugin.prototype = {
         }
 
         // sanitize
-        data.type = ['info', 'warn', 'fail'].indexOf(data.type) === -1 ? 'info' : data.type;
-        //data.info = data.info || data.message;
-        data.tags = data.tags || [];
+        message.type = ['info', 'warn', 'fail'].indexOf(message.type) === -1 ? 'info' : message.type;
+        message.tags = Array.isArray(message.tags) ? message.tags : [];
+        message.tags = message.tags.concat([this.name, profileName, message.type]);
 
         // extract type configs
-        console = config.console[data.type];
-        popup   = config.popup[data.type];
-        sound   = config.sound[data.type];
+        webuiConfig = config.webui[message.type];
+        popupConfig = config.popup[message.type];
+        soundConfig = config.sound[message.type];
 
-        this.wamp.message({
-            info: data.info,
-            data: data.message,
-            tags: data.tags.concat([this.name, profile, data.type])
-        });
+        if ( profileName ) {
+            this.debug('profile:' + profileName, message.info);
+        } else {
+            this.debug(message.info);
+        }
 
-        if ( console && data.info ) {
+        if ( webuiConfig ) {
+            this.wamp.message({
+                info: message.info,
+                data: message.data,
+                tags: message.tags
+            });
+
             // prepare
             //data.info = Array.isArray(data.info) ? data.info : data.info.split('\n');
             // print
             //log(this.title[data.type], data.info);
-            this.debug(data.info);
         }
 
-        if ( popup && popup.show && data.message ) {
+        if ( popupConfig && popupConfig.show && message.info ) {
             // add plugin name to the title
-            data.title = util.format('%s: %s (profile: %s)', self.name, data.title, profile);
+            message.title = util.format('%s: %s (profile: %s)', self.name, message.title, profileName);
             // user can redefine the default icon
-            data.icon = data.icon || popup.icon;
+            message.icon = message.icon || popupConfig.icon;
             // prepare text
-            data.message = Array.isArray(data.message) ? data.message.join('\n') : data.message;
+            //data.message = Array.isArray(data.message) ? data.message.join('\n') : data.message;
+            message.message = message.info;
             // show
-            notifier.notify(data);
+            notifier.notify(message);
         }
 
-        if ( sound && sound.play && sound.file ) {
-            exec('aplay "' + sound.file + '"');
+        if ( soundConfig && soundConfig.play && soundConfig.file ) {
+            exec('aplay "' + soundConfig.file + '"');
         }
     }
 
