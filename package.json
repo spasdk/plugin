@@ -16,6 +16,9 @@
         "extend": "3.*.*",
         "node-notifier": "4.*.*"
     },
+    "devDependencies": {
+        "spa-eslint-config": "spasdk/eslint-config"
+    },
     "keywords": [
         "spa",
         "spasdk",
