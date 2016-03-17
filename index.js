@@ -234,11 +234,10 @@ Plugin.prototype = {
         popupConfig = config.popup[message.type];
         soundConfig = config.sound[message.type];
 
-        if ( profileName ) {
-            this.debug('profile:' + profileName, message.info);
-        } else {
-            this.debug(message.info);
-        }
+        if ( profileName  ) { this.debug('profile:' + profileName); }
+        if ( message.info ) { this.debug(message.info); }
+        if ( message.data ) { this.debug(message.data); }
+        if ( message.tags ) { this.debug(message.tags); }
 
         if ( webuiConfig ) {
             this.wamp.message({
