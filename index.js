@@ -243,7 +243,8 @@ Plugin.prototype = {
             this.wamp.message({
                 info: message.info,
                 data: message.data,
-                tags: message.tags
+                tags: message.tags,
+                time: +new Date()
             });
 
             // prepare
