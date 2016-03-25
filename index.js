@@ -227,7 +227,20 @@ Plugin.prototype = {
         // sanitize
         message.type = ['info', 'warn', 'fail'].indexOf(message.type) === -1 ? 'info' : message.type;
         message.tags = Array.isArray(message.tags) ? message.tags : [];
-        message.tags = message.tags.concat([this.name, profileName, message.type]);
+        //message.tags = message.tags.concat([this.name, profileName, message.type]);
+        message.tags = message.tags.concat([this.name, profileName]);
+        message.time = +new Date();
+
+        /*// type is not given
+        if ( ['info', 'warn', 'fail'].indexOf(message.type) === -1 ) {
+            if ( message.tags.indexOf('fail') !== -1 ) {
+                message.type = 'fail';
+            } else if ( message.tags.indexOf('warn') !== -1 ) {
+                message.type = 'warn';
+            } else {
+                message.type = 'info';
+            }
+        }*/
 
         // extract type configs
         webuiConfig = config.webui[message.type];
@@ -235,22 +248,28 @@ Plugin.prototype = {
         soundConfig = config.sound[message.type];
 
         if ( profileName  ) { this.debug('profile:' + profileName); }
+        if ( message.type ) { this.debug(message.type); }
         if ( message.info ) { this.debug(message.info); }
         if ( message.data ) { this.debug(message.data); }
         if ( message.tags ) { this.debug(message.tags); }
 
-        if ( webuiConfig ) {
-            this.wamp.message({
+        if ( webuiConfig && this.wamp.message ) {
+            //console.log(this.wamp);
+            this.wamp.message(message);
+            /*this.wamp.message({
+                type: message.type,
                 info: message.info,
                 data: message.data,
                 tags: message.tags,
                 time: +new Date()
-            });
+            });*/
 
             // prepare
             //data.info = Array.isArray(data.info) ? data.info : data.info.split('\n');
             // print
             //log(this.title[data.type], data.info);
+        } else {
+            //console.log('wamp is not ready!!!!');
         }
 
         if ( popupConfig && popupConfig.show && message.info ) {
