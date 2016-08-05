@@ -229,7 +229,7 @@ Plugin.prototype = {
         message.tags = Array.isArray(message.tags) ? message.tags : [];
         //message.tags = message.tags.concat([this.name, profileName, message.type]);
         message.tags = message.tags.concat([this.name, profileName]);
-        message.time = +new Date();
+        message.time = Date.now();
 
         /*// type is not given
         if ( ['info', 'warn', 'fail'].indexOf(message.type) === -1 ) {
@@ -261,7 +261,7 @@ Plugin.prototype = {
                 info: message.info,
                 data: message.data,
                 tags: message.tags,
-                time: +new Date()
+                time: Date.now()
             });*/
 
             // prepare
