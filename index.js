@@ -29,7 +29,7 @@ var //path       = require('path'),
 function Plugin ( config ) {
     var self = this;
 
-    this.wamp = require('spa-plugin-wamp');
+    //this.wamp = require('spa-plugin-wamp');
 
     this.debug = require('debug')('plugin:' + config.name);
     this.debug('init');
@@ -216,7 +216,7 @@ Plugin.prototype = {
         var self = this,
             config, webuiConfig, popupConfig, soundConfig;
 
-        profileName = profileName || 'default';
+        profileName = profileName || 'release';
         config = this.config[profileName].notifications;
 
         if ( !config ) {
@@ -227,7 +227,6 @@ Plugin.prototype = {
         // sanitize
         message.type = ['info', 'warn', 'fail'].indexOf(message.type) === -1 ? 'info' : message.type;
         message.tags = Array.isArray(message.tags) ? message.tags : [];
-        //message.tags = message.tags.concat([this.name, profileName, message.type]);
         message.tags = message.tags.concat([this.name, profileName]);
         message.time = Date.now();
 
@@ -247,15 +246,17 @@ Plugin.prototype = {
         popupConfig = config.popup[message.type];
         soundConfig = config.sound[message.type];
 
-        if ( profileName  ) { this.debug('profile:' + profileName); }
-        if ( message.type ) { this.debug(message.type); }
-        if ( message.info ) { this.debug(message.info); }
-        if ( message.data ) { this.debug(message.data); }
-        if ( message.tags ) { this.debug(message.tags); }
+        // if ( profileName  ) { this.debug('profile:' + profileName); }
+        // if ( message.type ) { this.debug(message.type); }
+        // if ( message.info ) { this.debug(message.info); }
+        // if ( message.data ) { this.debug(message.data); }
+        // if ( message.tags ) { this.debug(message.tags); }
 
-        if ( webuiConfig && this.wamp.message ) {
+        this.app.message(message);
+
+        //if ( webuiConfig && this.wamp.message ) {
             //console.log(this.wamp);
-            this.wamp.message(message);
+            //this.wamp.message(message);
             /*this.wamp.message({
                 type: message.type,
                 info: message.info,
@@ -268,18 +269,24 @@ Plugin.prototype = {
             //data.info = Array.isArray(data.info) ? data.info : data.info.split('\n');
             // print
             //log(this.title[data.type], data.info);
-        } else {
+        //} else {
             //console.log('wamp is not ready!!!!');
-        }
+        //}
 
         if ( popupConfig && popupConfig.show && message.info ) {
             // add plugin name to the title
-            message.title = util.format('%s: %s (profile: %s)', self.name, message.title, profileName);
+            message.title = util.format('%s (profile: %s)', self.name, /*message.title, */profileName);
             // user can redefine the default icon
             message.icon = message.icon || popupConfig.icon;
             // prepare text
             //data.message = Array.isArray(data.message) ? data.message.join('\n') : data.message;
-            message.message = message.info;
+            message.message = message.info;// + (message.data ? '\n\n' + util.inspect(message.data) : '');
+
+            if ( message.data ) {
+                // additional info
+                message.message += '\n\n' + (typeof message.data === 'string' ? message.data : util.inspect(message.data));
+            }
+
             // show
             notifier.notify(message);
         }
