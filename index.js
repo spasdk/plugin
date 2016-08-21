@@ -6,9 +6,9 @@
 'use strict';
 
 var //path       = require('path'),
-    util       = require('util'),
-    exec       = require('child_process').exec,
-    notifier   = require('node-notifier'),
+    //util       = require('util'),
+    //exec       = require('child_process').exec,
+    //notifier   = require('node-notifier'),
     chokidar   = require('chokidar');
     //watchList  = {},
     //doneList   = {};
@@ -87,9 +87,12 @@ function Plugin ( config ) {
 
             localTask('config', function () {
                 localNotify({
-                    title: 'config',
+                    //title: 'config',
                     //info: 'delete ' + profile.data.target,
-                    info: util.inspect(self.config[profileName], {depth: 3, colors: true})
+                    //info: util.inspect(self.config[profileName], {depth: 3, colors: true}),
+                    info: 'config for ' + self.name + ':' + profileName,
+                    tags: ['config'],
+                    data: self.config[profileName]
                 });
             });
         });
@@ -213,8 +216,8 @@ Plugin.prototype = {
      * @param {string} profileName name of profile to get config from
      */
     notify: function ( message, profileName ) {
-        var self = this,
-            config, webuiConfig, popupConfig, soundConfig;
+        var //self = this,
+            config; //, webuiConfig, popupConfig, soundConfig;
 
         profileName = profileName || 'release';
         config = this.config[profileName].notifications;
@@ -242,9 +245,9 @@ Plugin.prototype = {
         }*/
 
         // extract type configs
-        webuiConfig = config.webui[message.type];
-        popupConfig = config.popup[message.type];
-        soundConfig = config.sound[message.type];
+        // webuiConfig = config.webui[message.type];
+        // popupConfig = config.popup[message.type];
+        // soundConfig = config.sound[message.type];
 
         // if ( profileName  ) { this.debug('profile:' + profileName); }
         // if ( message.type ) { this.debug(message.type); }
@@ -252,7 +255,9 @@ Plugin.prototype = {
         // if ( message.data ) { this.debug(message.data); }
         // if ( message.tags ) { this.debug(message.tags); }
 
-        this.app.message(message);
+
+        //console.log(config);
+        this.app.message(message, config);
 
         //if ( webuiConfig && this.wamp.message ) {
             //console.log(this.wamp);
@@ -273,27 +278,27 @@ Plugin.prototype = {
             //console.log('wamp is not ready!!!!');
         //}
 
-        if ( popupConfig && popupConfig.show && message.info ) {
-            // add plugin name to the title
-            message.title = util.format('%s (profile: %s)', self.name, /*message.title, */profileName);
-            // user can redefine the default icon
-            message.icon = message.icon || popupConfig.icon;
-            // prepare text
-            //data.message = Array.isArray(data.message) ? data.message.join('\n') : data.message;
-            message.message = message.info;// + (message.data ? '\n\n' + util.inspect(message.data) : '');
-
-            if ( message.data ) {
-                // additional info
-                message.message += '\n\n' + (typeof message.data === 'string' ? message.data : util.inspect(message.data));
-            }
-
-            // show
-            notifier.notify(message);
-        }
-
-        if ( soundConfig && soundConfig.play && soundConfig.file ) {
-            exec('aplay "' + soundConfig.file + '"');
-        }
+        // if ( popupConfig && popupConfig.show && message.info ) {
+        //     // add plugin name to the title
+        //     message.title = util.format('%s (profile: %s)', self.name, /*message.title, */profileName);
+        //     // user can redefine the default icon
+        //     message.icon = message.icon || popupConfig.icon;
+        //     // prepare text
+        //     //data.message = Array.isArray(data.message) ? data.message.join('\n') : data.message;
+        //     message.message = message.info;// + (message.data ? '\n\n' + util.inspect(message.data) : '');
+		//
+        //     if ( message.data ) {
+        //         // additional info
+        //         message.message += '\n\n' + (typeof message.data === 'string' ? message.data : util.inspect(message.data));
+        //     }
+		//
+        //     // show
+        //     notifier.notify(message);
+        // }
+		//
+        // if ( soundConfig && soundConfig.play && soundConfig.file ) {
+        //     exec('aplay "' + soundConfig.file + '"');
+        // }
     }
 
 };
