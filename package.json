@@ -16,8 +16,7 @@
     },
     "dependencies": {
         "chokidar": "1.*.*",
-        "extend": "3.*.*",
-        "node-notifier": "4.*.*"
+        "extend": "3.*.*"
     },
     "devDependencies": {
         "spa-eslint-config": "spasdk/eslint-config"
