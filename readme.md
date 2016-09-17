@@ -1,6 +1,7 @@
 Plugin constructor for task handling
 ====================================
 
+[![Build Status](https://img.shields.io/travis/spasdk/plugin.svg?style=flat-square)](https://travis-ci.org/spasdk/plugin)
 [![NPM version](https://img.shields.io/npm/v/spa-plugin.svg?style=flat-square)](https://www.npmjs.com/package/spa-plugin)
 [![Dependencies Status](https://img.shields.io/david/spasdk/plugin.svg?style=flat-square)](https://david-dm.org/spasdk/plugin)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-blue.svg?style=flat-square)](https://gitter.im/DarkPark/spasdk)
