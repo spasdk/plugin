@@ -6,7 +6,7 @@
 'use strict';
 
 var //path       = require('path'),
-    //util       = require('util'),
+    util       = require('util'),
     //exec       = require('child_process').exec,
     //notifier   = require('node-notifier'),
     chokidar   = require('chokidar');
@@ -94,6 +94,9 @@ function Plugin ( config ) {
                     tags: ['config'],
                     data: self.config[profileName]
                 });
+                // todo: remove when webui can show this info
+                self.debug('config for %s:%s', self.name, profileName);
+                self.debug(util.inspect(self.config[profileName], {depth: 3, colors: true}));
             });
         });
     }
