@@ -1,6 +1,6 @@
 {
     "name": "spa-plugin",
-    "version": "1.3.0",
+    "version": "1.0.0",
     "description": "Plugin constructor for task handling.",
     "author": {
         "name": "Stanislav Kalashnik",
