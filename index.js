@@ -106,7 +106,7 @@ function Plugin ( config ) {
 
 
 Plugin.prototype = {
-	/**
+    /**
      * Link to the application instance.
      *
      * @type {Object}
@@ -207,7 +207,7 @@ Plugin.prototype = {
     },*/
 
 
-	/**
+    /**
      * Print info in webui, show popup and play sound.
      *
      * @param {Object} message message to show
@@ -262,46 +262,46 @@ Plugin.prototype = {
         //console.log(config);
         this.app.message(message, config);
 
-        //if ( webuiConfig && this.wamp.message ) {
-            //console.log(this.wamp);
-            //this.wamp.message(message);
-            /*this.wamp.message({
-                type: message.type,
-                info: message.info,
-                data: message.data,
-                tags: message.tags,
-                time: Date.now()
-            });*/
-
-            // prepare
-            //data.info = Array.isArray(data.info) ? data.info : data.info.split('\n');
-            // print
-            //log(this.title[data.type], data.info);
-        //} else {
-            //console.log('wamp is not ready!!!!');
-        //}
-
-        // if ( popupConfig && popupConfig.show && message.info ) {
-        //     // add plugin name to the title
-        //     message.title = util.format('%s (profile: %s)', self.name, /*message.title, */profileName);
-        //     // user can redefine the default icon
-        //     message.icon = message.icon || popupConfig.icon;
-        //     // prepare text
-        //     //data.message = Array.isArray(data.message) ? data.message.join('\n') : data.message;
-        //     message.message = message.info;// + (message.data ? '\n\n' + util.inspect(message.data) : '');
-		//
-        //     if ( message.data ) {
-        //         // additional info
-        //         message.message += '\n\n' + (typeof message.data === 'string' ? message.data : util.inspect(message.data));
-        //     }
-		//
-        //     // show
-        //     notifier.notify(message);
-        // }
-		//
-        // if ( soundConfig && soundConfig.play && soundConfig.file ) {
-        //     exec('aplay "' + soundConfig.file + '"');
-        // }
+        // //if ( webuiConfig && this.wamp.message ) {
+        //     //console.log(this.wamp);
+        //     //this.wamp.message(message);
+        //     /*this.wamp.message({
+        //         type: message.type,
+        //         info: message.info,
+        //         data: message.data,
+        //         tags: message.tags,
+        //         time: Date.now()
+        //     });*/
+        //
+        //     // prepare
+        //     //data.info = Array.isArray(data.info) ? data.info : data.info.split('\n');
+        //     // print
+        //     //log(this.title[data.type], data.info);
+        // //} else {
+        //     //console.log('wamp is not ready!!!!');
+        // //}
+        //
+        // // if ( popupConfig && popupConfig.show && message.info ) {
+        // //     // add plugin name to the title
+        // //     message.title = util.format('%s (profile: %s)', self.name, /*message.title, */profileName);
+        // //     // user can redefine the default icon
+        // //     message.icon = message.icon || popupConfig.icon;
+        // //     // prepare text
+        // //     //data.message = Array.isArray(data.message) ? data.message.join('\n') : data.message;
+        // //     message.message = message.info;// + (message.data ? '\n\n' + util.inspect(message.data) : '');
+        // //
+        // //     if ( message.data ) {
+        // //         // additional info
+        // //         message.message += '\n\n' + (typeof message.data === 'string' ? message.data : util.inspect(message.data));
+        // //     }
+        // //
+        // //     // show
+        // //     notifier.notify(message);
+        // // }
+        // //
+        // // if ( soundConfig && soundConfig.play && soundConfig.file ) {
+        // //     exec('aplay "' + soundConfig.file + '"');
+        // // }
     }
 
 };
